@@ -11,7 +11,7 @@ function copyDir() {
     if (err) throw err;
     files.forEach(file => {
       const oldPathFile = path.join(pathCopyFolder, file);
-      console.log('старые файлы: ' + oldPathFile);
+      console.log('Old file: ' + file);
       fs.unlink(oldPathFile, (err) => {
         if (err) throw err;
       });
@@ -26,7 +26,7 @@ function copyDir() {
         const newPathFile = path.join(pathCopyFolder, file.name)
         fs.copyFile(pathFile, newPathFile, err => {
           if (err) throw err;
-          console.log('Новые файлы: ' + newPathFile);
+          console.log('New file: ' + file.name);
         })
       }
     });
