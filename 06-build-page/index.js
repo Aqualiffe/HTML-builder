@@ -15,7 +15,6 @@ fs.mkdir(pathFolder, { recursive: true }, err => {
 });
 
 const writeStream = fs.createWriteStream(pathNewCss, 'utf-8');
-console.log('Файл создан');
 
 fs.readdir(pathStyles, {withFileTypes: true}, (err, files) => {
   if (err) throw err;
@@ -38,7 +37,7 @@ async function copyDir(newPath = pathCopyAssets, fromPath = pathAssets) {
     if (err) throw err;
     files.forEach(file => {
       if (file.isDirectory()) {
-        console.log('folder: ' + (path.join(newPath, file.name)));
+        // console.log('folder: ' + (path.join(newPath, file.name)));
         copyDir(path.join(newPath, file.name), path.join(fromPath, file.name));
       }
       if (file.isFile()) {
@@ -46,12 +45,29 @@ async function copyDir(newPath = pathCopyAssets, fromPath = pathAssets) {
         const newPathFile = path.join(newPath, file.name);
         fs.copyFile(pathFile, newPathFile, err => {
           if (err) throw err;
-          console.log('New file: ' + file.name);
+          // console.log('New file: ' + file.name);
         })
       };
     });
   });
 }
 copyDir();
-
+let contents = '';
+fs.readFile(pathTemplate, 'utf8', (err, content) => {
+  if (err) throw err;
+  contents += content.toString();
+  fs.readdir(pathComponents, { withFileTypes: true }, (err, files) => {
+    if (err) throw err;
+    files.forEach(file => {
+      const pathFileComponents = path.join(pathComponents, file.name);
+      const dot = (file.name).indexOf('.');
+      const nameFileComponents= (file.name).slice(0, dot)
+      const dataComponents = fs.createReadStream(pathFileComponents, 'utf-8');
+      dataComponents.on('data', (data) => {
+        contents = contents.replaceAll(`{{${nameFileComponents}}}`, data);
+        fs.writeFile(pathNewHtml, contents, () => {});
+      });
+    });
+  });
+});
 
